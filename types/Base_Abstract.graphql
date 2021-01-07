@@ -1,0 +1,76 @@
+
+#######
+##
+##     -- Abstract Types --
+##
+##     Types which define elements in the abstract sense and where they
+##     exist in any model, and their element types.
+##
+##     Abstract types represent the conceptual design information and
+##     the model elements where they are represented in any model.
+##     In this way there is only a single conceptual design, but there can
+##     be multiple models where this information is utilized or visualized
+##     in the object model of the native application.
+##
+#######
+
+### Interfaces ###
+
+"""
+Base Element - Ensures all elements have an Id field
+"""
+interface BaseElement {
+  Id: ID!
+}
+
+"""
+Abstract Element - Elements which exist in analytical space
+"""
+interface AbstractElement {
+  Id: ID!
+  Name: String
+  ElementType: ElementType @relation(name:"IS_OF",direction:OUT)
+  ModelElements: [ModelElement] @relation(name:"REALIZED_BY",direction:OUT)
+} 
+
+### Types ###
+
+"""
+Abstract Element - Elements which represent abstract elements where they exist in model space
+"""
+type ModelElement implements BaseElement {
+  Id: ID!
+  ExternalID: String
+  UniqueId: String
+  Model: Model @relation(name:"IS_IN",direction:OUT)
+  AbstractElement: AbstractElement @relation(name:"REALIZED_BY",direction:IN)
+}
+
+"""
+Element Type - The type of an abstract element
+"""
+type ElementType implements AbstractElement {
+  Name: String
+  Id: ID!
+  ModelElements: [ModelElement] @relation(name:"REALIZED_BY",direction:OUT)
+  Space: Space @relation(name:"IS_IN_SPACE",direction:OUT)
+  ClassificationCode: String
+  Category: String
+  Type_Name: String
+  Family_Name: String
+  Description: String
+  ElementType: ElementType @relation(name:"IS_OF",direction:OUT)
+  AbstractElements: [AbstractElement] @relation(name:"IS_OF",direction:IN)
+}
+
+### Mutations ###
+
+type Mutation {
+  Add_AbstractElement_IS_OF_ElementType(fromId:ID! toId:ID!) : String @cypher(statement:"MATCH (frn:AbstractElement {Id: $fromId}),(ton:ElementType {Id: $toId}) MERGE (frn)-[r:IS_OF]->(ton) with frn,ton OPTIONAL MATCH (frn)-[rs:IS_OF]->(ton2) where Id(ton) <> Id(ton2) delete rs")   
+  Remove_AbstractElement_IS_OF_ElementType(fromId:ID! toId:ID!) : String @cypher(statement:"MATCH (frn:AbstractElement {Id: $fromId})-[r:IS_OF]->(ton:ElementType {Id: $toId}) DELETE r")
+
+  AddElementTypeToElement(spaceId:ID! abstractId:ID!) : String @cypher(statement:"MATCH (sp:Space {Id: $spaceId}), (ae {Id: $abstractId}) MERGE (ae)-[r:IS_IN_SPACE]->(sp)")
+  RemoveElementTypeFromElement(spaceId:ID! abstractId:ID!) : String @cypher(statement:"MATCH (sp:Space {id: $spaceId})<-[r:IS_IN_SPACE]-(ae {id: $abstractId}) DELETE r")
+  Add_AbstractElement_REALIZED_BY_ModelElement(fromId:ID! toId:ID!) : String @cypher(statement:"MATCH (frn {Id: $fromId}),(ton:ModelElement {Id: $toId}) MERGE (frn)-[r:REALIZED_BY]->(ton)")   
+  Add_ModelElement_IS_IN_Model(fromId:ID! toId:ID!) : String @cypher(statement:"MATCH (frn:ModelElement {Id: $fromId}),(ton:Model {Id: $toId}) MERGE (frn)-[r:IS_IN]->(ton) with frn,ton OPTIONAL MATCH (frn)-[rs:IS_IN]->(ton2) where Id(ton) <> Id(ton2) delete rs")  
+}

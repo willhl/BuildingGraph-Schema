@@ -1,0 +1,49 @@
+
+#######
+##
+##     -- Project Types --
+##
+##     Types which define human and organizational resourcing
+##
+#######
+
+### Types ###
+
+interface Resource {
+  Id: ID!
+  Name: String
+  Members: [Resource]
+  MemberOf: [Resource]
+}
+
+
+type Organization implements Resource {
+  Id: ID!
+  Name: String
+  Groups: [Group] @relation(name:"IS_IN",direction:IN)
+  Users: [Resource] @relation(name:"IS_IN",direction:IN)
+  Members: [Resource] @relation(name:"IS_IN",direction:IN)
+  MemberOf: [Resource] @relation(name:"IS_IN",direction:OUT)
+}
+
+type User implements Resource {
+  Id: ID!
+  Name: String
+  Groups: [Group] @relation(name:"IS_IN",direction:OUT)
+  Organizations: [Organization] @relation(name:"IS_IN",direction:OUT)
+  Members: [Resource] @relation(name:"IS_IN",direction:IN)
+  MemberOf: [Resource] @relation(name:"IS_IN",direction:OUT)
+}
+
+type Group implements Resource {
+  Id: ID!
+  Name: String
+  Resources: [Resource] @relation(name:"IS_IN",direction:IN)
+  Members: [Resource] @relation(name:"IS_IN",direction:IN)
+  MemberOf: [Resource] @relation(name:"IS_IN",direction:OUT)
+}
+
+type ContainerIssue {
+  IssueTo: [Resource] @relation(name:"ISSUED",direction:OUT)
+  IssueFrom: [Resource] @relation(name:"ISSUED",direction:IN)
+}

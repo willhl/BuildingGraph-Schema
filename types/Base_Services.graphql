@@ -1,0 +1,31 @@
+
+#######
+##
+##     -- Services Types --
+##
+##     Defines external calculations and other services
+##     which interact with the data.
+##
+#######
+
+### Types ###
+
+type CalculationService implements BaseElement {
+  Id: ID!
+  Name: String
+}
+
+type ServiceInstance @relation(name: "SERIVCES") {
+  from: CalculationService
+  to: Project
+  Version: String
+  LastUpdate: DateTime
+  UpdateRequested: Boolean
+}
+
+
+### Mutations ###
+
+type Mutation {
+  Add_CalculationService_SERVICES_Project(fromId:ID! toId:ID!) : String @cypher(statement:"MATCH (frn:CalculationService {Id: $fromId}),(ton:Project {Id: $toId}) MERGE (frn)-[r:SERIVCES]->(ton)")
+}

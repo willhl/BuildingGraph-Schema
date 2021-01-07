@@ -1,0 +1,50 @@
+
+
+#######
+##
+##     -- Facilities Management Types --
+##
+##     Types involved in the operation and maintenance requirements
+##     of a live building
+##
+#######
+
+### Types ###
+
+type Asset implements BaseElement {
+  Name: String
+  Id: ID!
+  Replaces: [Asset] @relation(name:"REPLACES",direction:OUT)
+  FaultEvents: [FaultEvent] @relation(name:"EVENT",direction:OUT)
+  MaintenanceEvents: [MaintenanceEvent] @relation(name:"EVENT",direction:OUT)
+  Space: Space @relation(name:"IS_IN_SPACE",direction:OUT)
+}
+
+type MaintenanceEvent implements BaseElement{
+  Name: String
+  Id: ID!
+  Description: String
+  Asset: [Asset] @relation(name:"EVENT",direction:IN)
+}
+
+type FaultEvent implements BaseElement {
+  Name: String
+  Id: ID!
+  FaultLevel: FaultLevel
+  IsResolved: Boolean
+  Asset: [Asset] @relation(name:"EVENT",direction:IN)
+}
+
+### Augmented Types ###
+
+type Space {
+  Assets: [Asset] @relation(name:"IS_IN_SPACE",direction:IN)
+}
+
+### Enums ###
+
+enum FaultLevel {
+  Information
+  Warning
+  Critical
+}

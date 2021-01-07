@@ -1,0 +1,34 @@
+
+#######
+##
+##     -- Furniture Management Types --
+##
+##     Basic furniture elements found in buildings
+##
+#######
+
+
+### Types ###
+
+type Furniture implements AbstractElement {
+  Name: String
+  Id: ID!
+  ElementType: ElementType @relation(name:"IS_OF",direction:OUT)
+  ModelElements: [ModelElement] @relation(name:"REALIZED_BY",direction:OUT)
+  Space: Space @relation(name:"IS_IN_SPACE",direction:OUT)
+}
+
+type Fixture implements AbstractElement {
+  Name: String
+  Id: ID!
+  ElementType: ElementType @relation(name:"IS_OF",direction:OUT)
+  ModelElements: [ModelElement] @relation(name:"REALIZED_BY",direction:OUT)
+  Space: Space @relation(name:"IS_IN_SPACE",direction:OUT)
+}
+
+### Augmented Types ###
+
+type Space {
+  FurnitureElements: [Furniture] @relation(name:"IS_IN_SPACE",direction:IN)
+  FixtureElements: [Fixture] @relation(name:"IS_IN_SPACE",direction:IN)
+}
