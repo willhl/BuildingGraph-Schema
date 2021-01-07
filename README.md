@@ -1,0 +1,1 @@
+# BuildingGraph-Schema
